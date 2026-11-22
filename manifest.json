@@ -1,0 +1,17 @@
+{
+  "name": "Egg Mama",
+  "short_name": "Egg Mama",
+  "description": "A storm scattered Mama's eggs across the valley. Roll, jump and gather the clutch across thirteen landscapes, and light the beacon at the summit.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "landscape",
+  "background_color": "#1c130c",
+  "theme_color": "#2b1a10",
+  "categories": ["games", "kids"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

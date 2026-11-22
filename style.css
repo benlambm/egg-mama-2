@@ -1,0 +1,161 @@
+/* Egg Mama — full-screen landscape play, menus over the scene.
+   Rules for this file: the playfield never scrolls or bounces (VIEW-2), the
+   document fills the viewport with the browser toolbar visible (VIEW-1), and
+   menus are light cards with large high-contrast type. */
+
+:root {
+  --ink: #2b1a10;
+  --paper: #fffdf6;
+  --cream: #fff6e0;
+  --sun: #ffd43b;
+  --sun-dark: #b8860b;
+  --red: #b3202f;
+  --shadow: rgba(43, 26, 16, 0.35);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+button { touch-action: manipulation; }
+[hidden] { display: none !important; }
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: #1c130c; color: var(--ink);
+  font-family: ui-rounded, "Arial Rounded MT Bold", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 20px; line-height: 1.3;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;              /* no pull-to-refresh */
+  touch-action: none;                     /* swipes belong to the game */
+  -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+  position: fixed; inset: 0;              /* the document cannot move at all */
+}
+
+#game {
+  position: fixed; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  display: block; touch-action: none;
+}
+
+/* ── the one control over the running game ─────────────────────────── */
+.icon-btn {
+  position: fixed; z-index: 5;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  right: max(12px, env(safe-area-inset-right, 0px));
+  width: 56px; height: 56px; border-radius: 16px;
+  background: rgba(255, 253, 246, 0.92); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--shadow);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.pause-icon { width: 20px; height: 22px; border-left: 7px solid var(--ink); border-right: 7px solid var(--ink); }
+
+/* ── screens (menus over the scene) ────────────────────────────────── */
+.screen {
+  position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 10px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  padding-left: max(14px, env(safe-area-inset-left, 0px));
+  padding-right: max(14px, env(safe-area-inset-right, 0px));
+  background: rgba(24, 16, 9, 0.42);     /* the scene shows around the card */
+}
+.screen.top { z-index: 20; background: rgba(24, 16, 9, 0.72); }
+
+.card {
+  width: min(100%, 560px); max-height: 100%; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: var(--paper); border: 4px solid var(--ink); border-radius: 26px;
+  box-shadow: 0 8px 0 var(--shadow);
+  padding: 12px 18px 14px; text-align: center;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.card.narrow { width: min(100%, 460px); }
+
+h1 { font-size: clamp(30px, 8vh, 44px); font-weight: 900; line-height: 1.05; letter-spacing: -0.5px; }
+h1.bad { color: var(--red); }
+.tagline { font-size: 19px; font-weight: 700; }
+.hint { font-size: 16px; font-weight: 700; opacity: 0.75; }
+.stats-line { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+#titleMama { width: 92px; height: 97px; align-self: center; }
+
+/* Buttons: big, chunky, obviously pressable. */
+.btn {
+  font: inherit; font-weight: 900; color: var(--ink); cursor: pointer;
+  border: 3px solid var(--ink); border-radius: 18px; background: var(--paper);
+  padding: 10px 16px; box-shadow: 0 5px 0 var(--shadow);
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--shadow); }
+.btn:disabled { opacity: 0.55; }
+.btn:focus-visible, .icon-btn:focus-visible { outline: 4px solid #1d4ed8; outline-offset: 2px; }
+.btn.primary { background: var(--sun); font-size: 27px; padding: 10px 16px; box-shadow: 0 6px 0 var(--sun-dark); }
+.btn.primary:active { box-shadow: 0 2px 0 var(--sun-dark); }
+.btn.small { font-size: 18px; padding: 9px 12px; }
+.btn.danger { color: var(--red); border-color: var(--red); }
+.row { display: flex; gap: 10px; }
+.row > .btn { flex: 1; }
+.settings { flex-wrap: wrap; }
+.settings > .danger, .settings .danger { flex-basis: 100%; }
+
+/* Results */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 2px 0 4px; }
+.stat { background: var(--cream); border: 3px solid var(--ink); border-radius: 16px; padding: 5px 6px 7px; }
+.stat .label { display: block; font-size: 15px; font-weight: 900; }
+.stat .value { display: block; font-size: clamp(20px, 6vh, 28px); font-weight: 900; font-variant-numeric: tabular-nums; }
+
+/* Journal */
+.journal-list { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 7px; overflow-y: auto; }
+.journal-list li { background: var(--cream); border: 3px solid var(--ink); border-radius: 14px; padding: 6px 10px; }
+.journal-list .ch-name { font-weight: 900; font-size: 17px; display: block; }
+.journal-list .ch-cue { font-size: 15px; font-weight: 600; display: block; margin-top: 1px; }
+.journal-list li.unseen { opacity: 0.6; border-style: dashed; }
+
+/* How to play */
+.howto { list-style: none; display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: 17px; font-weight: 700; }
+.howto li { display: flex; align-items: center; gap: 10px; }
+.keys { flex: none; width: 44px; display: flex; gap: 4px; justify-content: center; }
+kbd {
+  font: inherit; font-weight: 900; min-width: 32px; height: 32px; padding: 0 4px; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--cream); border: 3px solid var(--ink); border-radius: 9px;
+}
+.dot { width: 22px; height: 27px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #fef9ef; border: 3px solid var(--ink); }
+.dot.gold { background: var(--sun); box-shadow: 0 0 6px #ffd43b; }
+.dot.flag { background: var(--red); border-radius: 4px 12px 12px 4px; width: 26px; }
+
+/* Rotate prompt */
+.phone-icon {
+  width: 74px; height: 44px; margin: 0 auto; border: 4px solid var(--ink); border-radius: 10px;
+  position: relative; background: var(--cream); animation: tip 1.2s ease-in-out infinite alternate;
+}
+.phone-icon span { position: absolute; right: 8px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--ink); }
+@keyframes tip { from { transform: rotate(-38deg); } to { transform: rotate(38deg); } }
+@media (prefers-reduced-motion: reduce) { .phone-icon { animation: none; transform: rotate(90deg); } }
+
+/* ── short landscape screens: tighten so nothing needs scrolling ────── */
+@media (orientation: landscape) and (max-height: 520px) {
+  html, body { font-size: 17px; }
+  .screen { padding-top: calc(env(safe-area-inset-top, 0px) + 6px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px); }
+  .card { gap: 6px; padding: 9px 16px 11px; border-radius: 20px; width: min(100%, 640px); }
+  .card.narrow { width: min(100%, 430px); }
+  h1 { font-size: clamp(24px, 7vh, 34px); }
+  .tagline { font-size: 16px; }
+  .hint { display: none; }
+  #titleMama { width: 58px; height: 61px; }
+  .btn { padding: 7px 12px; }
+  .btn.primary { font-size: 22px; padding: 7px 14px; }
+  .btn.small { font-size: 15px; padding: 6px 9px; }
+  .row > .btn { flex-basis: auto; }
+  .howto { font-size: 14px; gap: 4px; }
+  kbd { min-width: 26px; height: 26px; }
+  .dot { width: 18px; height: 22px; }
+  .stats { gap: 6px; }
+  .stat .value { font-size: 20px; }
+  .stat .label { font-size: 13px; }
+  .icon-btn { width: 46px; height: 46px; border-radius: 13px; }
+  .pause-icon { width: 16px; height: 18px; border-left-width: 6px; border-right-width: 6px; }
+  .journal-list .ch-cue { font-size: 13px; }
+  .journal-list .ch-name { font-size: 15px; }
+}
+@media (orientation: landscape) and (max-height: 400px) {
+  html, body { font-size: 15px; }
+  .tagline { display: none; }
+  #titleMama { display: none; }
+  .card { gap: 4px; padding: 7px 14px 9px; }
+  h1 { font-size: 24px; }
+}

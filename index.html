@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="Egg Mama: a storm scattered Mama's eggs across the valley. Roll, jump and gather the clutch across thirteen landscapes, and light the beacon at the summit.">
+<meta name="theme-color" content="#2b1a10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Egg Mama">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<title>Egg Mama</title>
+</head>
+<body>
+
+<canvas id="game" aria-label="Egg Mama"></canvas>
+
+<!-- The only control over the running game: a thumb-reachable pause (VIEW-3) -->
+<button id="pauseBtn" class="icon-btn" aria-label="Pause" hidden><span class="pause-icon" aria-hidden="true"></span></button>
+
+<!-- Main title, over the Meadow scene -->
+<section id="title" class="screen" aria-labelledby="titleH">
+  <div class="card">
+    <h1 id="titleH">Egg Mama</h1>
+    <p class="tagline">The storm scattered the clutch. Roll home across thirteen landscapes.</p>
+    <canvas id="titleMama" width="200" height="210" aria-hidden="true"></canvas>
+    <button id="continueBtn" class="btn primary" hidden>Continue</button>
+    <button id="playBtn" class="btn primary">Begin the Journey</button>
+    <div class="row settings">
+      <button id="soundBtn" class="btn small" aria-pressed="true">Sound: On</button>
+      <button id="musicBtn" class="btn small" aria-pressed="true">Music: On</button>
+      <button id="howBtn" class="btn small">How to Play</button>
+    </div>
+    <button id="startOverBtn" class="btn small danger" data-start-over hidden>Start Over</button>
+    <p class="hint" id="titleHint">Hold your phone sideways.</p>
+  </div>
+</section>
+
+<!-- Pause menu: score, journal, sound, instructions live here (VIEW-3) -->
+<section id="pause" class="screen" hidden aria-labelledby="pauseH">
+  <div class="card narrow">
+    <h1 id="pauseH">Paused</h1>
+    <p class="stats-line" id="pauseStats"></p>
+    <button id="resumeBtn" class="btn primary">Keep Rolling</button>
+    <div class="row">
+      <button id="retryBtn" class="btn small">Retry Checkpoint</button>
+      <button id="journalBtn" class="btn small">Journal</button>
+    </div>
+    <div class="row">
+      <button id="pauseSoundBtn" class="btn small" aria-pressed="true">Sound: On</button>
+      <button id="pauseMusicBtn" class="btn small" aria-pressed="true">Music: On</button>
+    </div>
+    <div class="row">
+      <button id="pauseHowBtn" class="btn small">How to Play</button>
+      <button id="quitBtn" class="btn small">Main Title</button>
+    </div>
+  </div>
+</section>
+
+<!-- The attempt ended: retry the checkpoint or go back to the title -->
+<section id="over" class="screen" hidden aria-labelledby="overH">
+  <div class="card narrow">
+    <h1 id="overH" class="bad">The clutch is safe… for now</h1>
+    <p class="tagline" id="overLine"></p>
+    <div class="stats" id="overStats"></div>
+    <button id="retryBtn2" class="btn primary">Retry Checkpoint</button>
+    <button id="overHomeBtn" class="btn small">Main Title</button>
+  </div>
+</section>
+
+<!-- The beacon is lit (end of chapter 13) -->
+<section id="beacon" class="screen" hidden aria-labelledby="beaconH">
+  <div class="card narrow">
+    <h1 id="beaconH">The beacon is lit!</h1>
+    <p class="tagline">The flock can find its way home. Keep exploring?</p>
+    <div class="stats" id="beaconStats"></div>
+    <button id="keepGoingBtn" class="btn primary">Keep Going</button>
+    <button id="beaconHomeBtn" class="btn small">Main Title</button>
+  </div>
+</section>
+
+<!-- Start Over: are you sure? (SAVE-2) -->
+<section id="confirm" class="screen top" hidden role="alertdialog" aria-modal="true" aria-labelledby="confirmH" aria-describedby="confirmText">
+  <div class="card narrow">
+    <h1 id="confirmH">Start over?</h1>
+    <p id="confirmText" class="tagline">This replaces the saved journey with a fresh one in the Meadow: zero eggs, zero ducklings. Cancel keeps everything.</p>
+    <button id="confirmNo" class="btn primary">No, keep my journey</button>
+    <button id="confirmYes" class="btn small danger">Yes, start over</button>
+  </div>
+</section>
+
+<!-- The trail journal: every story cue, for rereading (LEVEL-1) -->
+<section id="journal" class="screen top" hidden aria-labelledby="journalH">
+  <div class="card">
+    <h1 id="journalH">Trail Journal</h1>
+    <ol class="journal-list" id="journalList"></ol>
+    <button id="journalClose" class="btn primary">Close</button>
+  </div>
+</section>
+
+<!-- How to play -->
+<section id="how" class="screen top" hidden aria-labelledby="howH">
+  <div class="card">
+    <h1 id="howH">How to Play</h1>
+    <ul class="howto">
+      <li><span class="keys"><kbd>▲</kbd></span><span>Swipe up (or ↑ / Space) to jump</span></li>
+      <li><span class="keys"><kbd>◀</kbd></span><span>Swipe left (or ←) to brake and back up</span></li>
+      <li><span class="keys"><kbd>▶</kbd></span><span>Swipe right (or →) to push ahead</span></li>
+      <li><span class="keys"><kbd>◻</kbd></span><span>Pause button (or Esc / P) pauses; M mutes</span></li>
+      <li><span class="keys"><span class="dot"></span></span><span>Ordinary eggs are points; a golden egg hatches a duckling (up to five)</span></li>
+      <li><span class="keys"><span class="dot gold"></span></span><span>Ducklings are extra lives; a shield absorbs the next hit first</span></li>
+      <li><span class="keys"><span class="dot flag"></span></span><span>Checkpoint flags save your journey; fall or get hit with no ducklings and you retry the last flag</span></li>
+    </ul>
+    <button id="howClose" class="btn primary">Got it</button>
+  </div>
+</section>
+
+<!-- Rotate prompt (VIEW-4): play pauses until the player chooses to resume -->
+<section id="rotate" class="screen top" hidden aria-labelledby="rotateH">
+  <div class="card narrow">
+    <div class="phone-icon" aria-hidden="true"><span></span></div>
+    <h1 id="rotateH">Turn sideways</h1>
+    <p class="tagline">Egg Mama is played in landscape. The run is paused and waiting.</p>
+    <button id="rotateResumeBtn" class="btn primary" disabled>Keep Rolling</button>
+  </div>
+</section>
+
+<script src="js/tuning.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/view.js"></script>
+<script src="js/art.js"></script>
+<script src="js/backdrops.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/render.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
