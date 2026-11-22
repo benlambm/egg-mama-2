@@ -317,6 +317,56 @@
     c.restore();
   }
 
+  // The diver: a red moth that cruises high and tucks its wings to swoop.
+  function drawDiver(c, o) {
+    var diving = !!o.diving;
+    var flap = diving ? 0.08 : Math.sin(o.t * 0.02) * 0.7;
+    c.save();
+    if (diving) c.rotate(0.65);   // nose down
+    c.save(); c.rotate(-0.5 - flap * 0.5);
+    oval(c, -16, -8, 16, 8, -0.6); paint(c, gradAt(c, -30, -14, -4, -2, [0, RED.l, 1, RED.d]), RED.k, 2.5);
+    c.restore();
+    c.save(); c.rotate(0.5 + flap * 0.5);
+    oval(c, 16, -8, 16, 8, 0.6); paint(c, gradAt(c, 4, -14, 30, -2, [0, RED.l, 1, RED.d]), RED.k, 2.5);
+    c.restore();
+    var body = function () { oval(c, 0, 0, 17, 13); };
+    body(); c.fillStyle = ball(c, 0, 0, 17, RED); c.fill();
+    body(); paint(c, null, RED.k, 2.5);
+    oval(c, -6, -4, 4, 5); paint(c, '#ffffff', RED.k, 1.5);
+    oval(c, 6, -4, 4, 5); paint(c, '#ffffff', RED.k, 1.5);
+    c.fillStyle = INK; oval(c, -5, -3, 2, 2.4); c.fill(); oval(c, 7, -3, 2, 2.4); c.fill();
+    line(c, [-11, -10, -2, -7, 11, -10], INK, 2.4);   // angry brows
+    c.restore();
+  }
+
+  // The hopper: a green frog-thing that springs at Mama from the ground.
+  // o: {t, air (height above its floor, world units)}
+  function drawHopper(c, o) {
+    var air = o.air || 0;
+    c.save();
+    c.lineCap = 'round';
+    c.beginPath();
+    if (air > 4) { c.moveTo(-12, -8); c.lineTo(-19, -3); c.moveTo(12, -8); c.lineTo(19, -3); }
+    else { c.moveTo(-16, -12); c.lineTo(-25, -2); c.moveTo(16, -12); c.lineTo(25, -2); }
+    paint(c, null, GREEN.k, 7);
+    var body = function () {
+      c.beginPath();
+      c.moveTo(-30, -6);
+      c.bezierCurveTo(-34, -30, -18, -44, 0, -44);
+      c.bezierCurveTo(18, -44, 34, -30, 30, -6);
+      c.closePath();
+    };
+    body(); c.fillStyle = ball(c, 0, -24, 34, GREEN); c.fill();
+    body(); paint(c, null, GREEN.k, 3);
+    // eyes ride on top
+    oval(c, -10, -46, 6, 7); paint(c, '#ffffff', GREEN.k, 2);
+    oval(c, 8, -46, 6, 7); paint(c, '#ffffff', GREEN.k, 2);
+    c.fillStyle = INK; oval(c, -8, -45, 2.8, 3.4); c.fill(); oval(c, 10, -45, 2.8, 3.4); c.fill();
+    line(c, [-17, -55, -6, -52, 2, -55, 15, -52], INK, 2.6);
+    gleam(c, -14, -36, 4, 6, 0.5, 0.8);
+    c.restore();
+  }
+
   // The beacon: a stone pillar with a brazier; lit draws a flame and glow.
   function drawBeacon(c, o) {
     var lit = !!o.lit, t = o.t || 0;
@@ -392,7 +442,8 @@
     INK: INK, rr: rr, poly: poly, oval: oval, paint: paint, gradAt: gradAt, ball: ball,
     rimLight: rimLight, gleam: gleam, star: star, eggPath: eggPath, rgba: rgba, shell: shell,
     PICS: PICS, sprite: sprite, stamp: stamp,
-    drawMama: drawMama, drawDuckling: drawDuckling, drawFlyer: drawFlyer, drawBeacon: drawBeacon,
+    drawMama: drawMama, drawDuckling: drawDuckling, drawFlyer: drawFlyer, drawDiver: drawDiver,
+    drawHopper: drawHopper, drawBeacon: drawBeacon,
     line: line,
     PAL: { SHELL: SHELL, GOLD: GOLD, YOLK: YOLK, RED: RED, BLUE: BLUE, GREEN: GREEN, PURPLE: PURPLE, ORANGE: ORANGE, CREAM: CREAM, WOOD: WOOD, STEEL: STEEL, DARK: DARK }
   };

@@ -24,7 +24,7 @@
     return { v: 2, chapter: 0, circuit: 1, seed: 1, x: 0, y: 0, eggs: 0, score: 0,
              flock: 0, shield: 0, cues: [], beaconLit: false };
   }
-  function freshSettings() { return { sound: true, music: true }; }
+  function freshSettings() { return { sound: true, music: true, allUnlocked: false }; }
 
   function num(v, lo, hi, dflt) {
     return (typeof v === 'number' && isFinite(v) && v >= lo && v <= hi) ? v : dflt;
@@ -78,6 +78,7 @@
       if (s && typeof s === 'object') {
         if (s.sound === false) d.sound = false;
         if (s.music === false) d.music = false;
+        if (s.allUnlocked === true) d.allUnlocked = true;
       }
     } catch (e) { d = freshSettings(); }
     return d;

@@ -66,7 +66,7 @@ function jumpLanding(game, S, allowLifts, includeCurrent) {
     if (p.type === 'lift' && !allowLifts) continue;
     const s = game.span(p);
     const dy = s.y - S.y;
-    if (dy > v0 * v0 / (2 * g) || dy < -170) continue;
+    if (dy > v0 * v0 / (2 * g) || dy < -400) continue;   // deep drops are fine (falls are safe)
     const disc = v0 * v0 - 2 * g * dy;
     if (disc < 0) continue;
     const t = (v0 + Math.sqrt(disc)) / g;          // descending branch
@@ -129,9 +129,16 @@ function playChapter(opts) {
       const best = jumpLanding(game, S, true, true);
       if (best && best.xl > hzEnd + 20) { game.input('jump'); lastJump = S.t; continue; }
     }
+    const span = game.span(onG);
+    // a ledge that needs a real jump UP is ahead: take off now — waiting
+    // until the edge makes the arc overshoot a narrow high ledge
+    const climb = coverIn(game, span.x1 + 10, span.x1 + 480, S.y + T.STEP_UP + 1, 1e9);
+    if (climb && S.t - lastJump > 150) {
+      const best0 = jumpLanding(game, S, true, true);
+      if (best0 && best0.s.y >= climb.y - 1 && best0.xl > span.x1 - 60) { game.input('jump'); lastJump = S.t; continue; }
+    }
     // an edge is coming within one jump: jump as soon as the arc lands past it
     // (each retry after a fall tries a little earlier, to vary the take-off)
-    const span = game.span(onG);
     if (span.x1 - S.x < JD + attempt * 30 && S.t - lastJump > 80) {
       const best = jumpLanding(game, S, true);
       if (best && best.xl > span.x1 - 30 - attempt * 10) { game.input('jump'); lastJump = S.t; continue; }

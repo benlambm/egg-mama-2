@@ -26,7 +26,7 @@
   var mode = 'title';
   var game = null;              // the engine game being played
   var demo = null;              // the quiet Meadow run behind the title
-  var caption = null;           // {title, sub, t0, dur}
+  var captions = [];            // queue of {title, sub, t0, dur} — chapter cue, then narration lines
   var shakeAt = 0;
   var overlay = null;           // 'confirm' | 'journal' | 'how' | null
   var overlayFrom = null;
@@ -75,7 +75,7 @@
     c.scale(cv.height / 190, cv.height / 190);
     c.fillStyle = 'rgba(60,38,20,0.18)';
     c.beginPath(); c.ellipse(0, 2, 44, 9, 0, 0, 6.283); c.fill();
-    EM.art.drawMama(c, { t: 0, roll: 0.2, vy: 0, invuln: 0, squash: 0, mood: 'happy' });
+    EM.art.drawMama(c, { t: 0, vy: 0, invuln: 0, squash: 0, mood: 'happy' });
     c.restore();
   }
 
@@ -96,7 +96,7 @@
     audio.stopMusic();
     demo = makeDemo();
     renderer.fx.clear();
-    caption = null;
+    captions.length = 0;
     refreshTitle();
     show('title');
     drawTitleMama();
@@ -129,7 +129,9 @@
     if (cues().indexOf(ch.id) < 0) progress.addCue(ch.id);
     renderer.fx.clear();
     snapCam = true;
-    caption = { title: 'Chapter ' + ch.num + ' · ' + ch.name, sub: ch.cue, t0: performance.now(), dur: 3800 };
+    // chapter cue first, then the chapter's narration lines one by one
+    captions = [{ title: 'Chapter ' + ch.num + ' · ' + ch.name, sub: ch.cue, t0: 0, dur: 3600 }];
+    (ch.narr || []).forEach(function (line) { captions.push({ title: null, sub: line, t0: 0, dur: 3800 }); });
     progress.record(game.serialize(), cues());      // save at the chapter transition (SAVE-1)
     mode = 'playing';
     pendingOverAt = 0;
@@ -305,11 +307,15 @@
     fitIfChanged();
 
     var cap = null;
-    if (caption) {
-      var ct = now - caption.t0;
-      var alpha = ct < 400 ? ct / 400 : ct > caption.dur - 700 ? Math.max(0, (caption.dur - ct) / 700) : 1;
-      if (alpha <= 0) caption = null;
-      else cap = { title: caption.title, sub: caption.sub, alpha: alpha };
+    var cur = captions[0];
+    if (cur) {
+      if (!cur.t0) cur.t0 = now;
+      var ct = now - cur.t0;
+      if (ct >= cur.dur) captions.shift();   // fully shown (faded out) — next line
+      else {
+        var alpha = ct < 400 ? ct / 400 : ct > cur.dur - 700 ? Math.max(0, (cur.dur - ct) / 700) : 1;
+        cap = { title: cur.title, sub: cur.sub, alpha: alpha };
+      }
     }
     var shake = shakeAt ? Math.max(0, 1 - (now - shakeAt) / 450) : 0;
 
@@ -467,16 +473,33 @@
     var list = $('journalList');
     list.textContent = '';
     var seen = cues();
-    LEVELS.CHAPTERS.forEach(function (ch) {
+    // allUnlocked is a testing switch (?all in the URL or EM.debug.unlockAll()):
+    // every chapter in the journal can be jumped to directly.
+    var all = progress.settings().allUnlocked === true;
+    LEVELS.CHAPTERS.forEach(function (ch, i) {
       var li = document.createElement('li');
-      if (seen.indexOf(ch.id) < 0) li.className = 'unseen';
+      var unlocked = all || seen.indexOf(ch.id) >= 0;
+      if (!unlocked) li.className = 'unseen';
       var nm = document.createElement('span'); nm.className = 'ch-name';
       nm.textContent = ch.num + ' · ' + ch.name;
       var cue = document.createElement('span'); cue.className = 'ch-cue';
-      cue.textContent = seen.indexOf(ch.id) >= 0 ? ch.cue : 'Not yet found on the trail…';
+      cue.textContent = seen.indexOf(ch.id) >= 0 ? ch.cue : (unlocked ? 'Uncharted — tap to scout it.' : 'Not yet found on the trail…');
       li.appendChild(nm); li.appendChild(cue);
+      if (unlocked) {
+        li.classList.add('open');
+        li.setAttribute('role', 'button');
+        li.tabIndex = 0;
+        li.addEventListener('click', function () { jumpToChapter(i); });
+        li.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); jumpToChapter(i); } });
+      }
       list.appendChild(li);
     });
+  }
+
+  function jumpToChapter(i) {
+    audio.unlock(); audio.sfx('click');
+    closeOverlay();
+    begin(i, 1, (Math.random() * 4294967296) >>> 0, null);
   }
 
   // ── rotation (VIEW-4) ────────────────────────────────────────────────
@@ -531,6 +554,10 @@
 
   EM.backdrops.loadAll();
 
+  // Testing hook: open the game with ?all (or #all) in the URL to unlock every
+  // chapter in the Trail Journal.
+  if (/[?&#]all\b/.test(location.search + location.hash)) progress.setSwitch('allUnlocked', true);
+
   // For developer tools and the browser checks.
   window.EM.debug = {
     mode: function () { return mode; },
@@ -538,7 +565,8 @@
     demo: function () { return demo; },
     progress: progress,
     begin: begin, startFromSave: startFromSave, beginFresh: beginFresh,
-    pause: pause, resume: resume, renderer: renderer
+    pause: pause, resume: resume, renderer: renderer,
+    unlockAll: function () { progress.setSwitch('allUnlocked', true); settings = progress.settings(); }
   };
 
   showTitle();

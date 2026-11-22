@@ -105,6 +105,8 @@ h1.bad { color: var(--red); }
 .journal-list .ch-name { font-weight: 900; font-size: 17px; display: block; }
 .journal-list .ch-cue { font-size: 15px; font-weight: 600; display: block; margin-top: 1px; }
 .journal-list li.unseen { opacity: 0.6; border-style: dashed; }
+.journal-list li.open { cursor: pointer; background: #fff8e2; }
+.journal-list li.open:hover, .journal-list li.open:focus-visible { background: #ffefc0; outline: none; }
 
 /* How to play */
 .howto { list-style: none; display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: 17px; font-weight: 700; }

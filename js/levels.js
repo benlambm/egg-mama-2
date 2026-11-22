@@ -37,111 +37,131 @@
   // below, sideD = its shade, ink = outlines, pit = colour of a pit's depths
   // (null = plain darkness), overlay = full-screen mood drawn over the
   // painted backdrop.
+  // `narr` lines are spoken by the chapter caption, one after another, after
+  // the chapter's cue — Meadow's tell the player what the game is about.
   var CHAPTERS = [
     { id: 'meadow', num: 1, name: 'Meadow', bg: 'meadow.webp',
       cue: 'The storm scattered my clutch across the valley. Roll on, Mama — the first golden egg rests on safe ground ahead.',
-      sec: [60, 90], water: null, overlay: null,
+      sec: [34, 46], water: null, overlay: null,
       palette: { top: '#7ec850', trim: '#a8e878', side: '#8a5a33', sideD: '#5f3a1e', ink: '#3f2712', pit: '#3a2a18' },
       music: { bpm: 112, root: 60, minor: false, intensity: 0.5, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 46, gap: 34, stairs: 20 },
+      weights: { flat: 24, gap: 34, stairs: 12, enemy: 12, hopper: 6, spikes: 4, pickup: 8 },
       opener: [['goldenGround'], ['gapArc', 240]],
-      closing: [['gapArc', 280]] },
+      closing: [['gapArc', 280]],
+      narr: [
+        'A storm scattered Mama\'s clutch across the valley.',
+        'Roll on and gather as many eggs as you can!',
+        'Golden eggs hatch ducklings — up to five follow Mama as extra lives.',
+        'Swipe up to jump, right to boost, left to brake. Reach the beacon!'
+      ] },
     { id: 'clover-mill', num: 2, name: 'Clover Mill', bg: 'clover-mill.webp',
       cue: 'A fox patrols the mill path. Time your jump into the second egg trail, and keep moving.',
-      sec: [60, 90], water: null, overlay: null,
+      sec: [45, 60], water: null, overlay: null,
       palette: { top: '#8fbf5a', trim: '#b8e07e', side: '#9a6a3a', sideD: '#6b4423', ink: '#43290f', pit: '#3a2a18' },
       music: { bpm: 116, root: 60, minor: false, intensity: 0.55, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 38, gap: 22, enemy: 22, stairs: 10, pickup: 8 },
+      weights: { flat: 26, gap: 20, enemy: 20, hopper: 8, stairs: 10, spikes: 8, pickup: 8 },
       opener: [['enemy', 560], ['eggRow', 5]],
-      closing: [['enemy', 520], ['gapArc', 260]] },
+      closing: [['enemy', 520], ['gapArc', 260]],
+      narr: ['Jump a patrol, or stomp it from above.', 'Eggs line the safe arcs over the pits.'] },
     { id: 'reedwater', num: 3, name: 'Reedwater', bg: 'reedwater.webp',
       cue: 'The lower path is flooded. Spot the next stepping ledge before you leave the one you are on.',
-      sec: [60, 90], water: '#3f7fae', overlay: null,
+      sec: [45, 60], water: '#3f7fae', overlay: null,
       palette: { top: '#6fae7c', trim: '#9ed4a8', side: '#7a6a4a', sideD: '#54462e', ink: '#33291a', pit: '#2e5d80' },
       music: { bpm: 104, root: 62, minor: false, intensity: 0.5, leadWave: 'triangle', stabWave: 'triangle' },
-      weights: { flat: 30, gap: 18, ledges: 34, enemy: 10, pickup: 8 },
+      weights: { flat: 22, gap: 16, ledges: 28, highTrack: 10, enemy: 10, diver: 8, pickup: 8, lift: 6 },
       opener: [['ledges', 3, true]],
-      closing: [['ledges', 4, true]] },
+      closing: [['ledges', 4, true]],
+      narr: ['The low path is flooded — hop the floating ledges.', 'Divers swoop when you are out in the open.'] },
     { id: 'orchard-heights', num: 4, name: 'Orchard Heights', bg: 'orchard.webp',
       cue: 'A spring will toss you into the branches for a golden egg. Steer back down onto the lower path.',
-      sec: [60, 90], water: null, overlay: null,
+      sec: [45, 60], water: null, overlay: null,
       palette: { top: '#86cf5a', trim: '#b2e886', side: '#8a5f36', sideD: '#5f3f22', ink: '#3d2812', pit: '#3a2a18' },
       music: { bpm: 120, root: 65, minor: false, intensity: 0.6, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 34, gap: 18, spring: 22, stairs: 16, enemy: 10 },
+      weights: { flat: 26, gap: 16, spring: 20, stairs: 14, highTrack: 8, enemy: 10, hopper: 6 },
       opener: [['spring', true]],
-      closing: [['spring', true], ['gapArc', 240]] },
+      closing: [['spring', true], ['gapArc', 240]],
+      narr: ['Springs toss you up to the high branches.', 'Hoppers spring when you get close — jump over them.'] },
     { id: 'amber-quarry', num: 5, name: 'Amber Quarry', bg: 'amber-quarry.webp',
       cue: 'The ledges here are cracked. Jump again before they give way — do not stand and think.',
-      sec: [90, 120], water: null, overlay: null,
+      sec: [60, 80], water: null, overlay: null,
       palette: { top: '#b08954', trim: '#d8b47e', side: '#8a6a42', sideD: '#5f4526', ink: '#3a2a14', pit: '#33241a' },
       music: { bpm: 118, root: 57, minor: true, intensity: 0.6, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 26, gap: 16, crumble: 26, spikes: 12, enemy: 12, pickup: 8 },
+      weights: { flat: 20, gap: 14, crumble: 26, spikes: 14, enemy: 12, hopper: 8, lift: 8, pickup: 8 },
       opener: [['crumble', 2]],
-      closing: [['crumble', 3], ['gapArc', 240]] },
+      closing: [['crumble', 3], ['gapArc', 240]],
+      narr: ['Cracked ledges give way — keep moving.', 'Spikes and critters both cost a duckling.'] },
     { id: 'fogwood', num: 6, name: 'Fogwood', bg: 'fogwood.webp',
       cue: 'Something flies through the mist. Read its path, and keep the landing in sight.',
-      sec: [90, 120], water: null, overlay: 'fog',
+      sec: [60, 80], water: null, overlay: 'fog',
       palette: { top: '#7ba05b', trim: '#a8cc86', side: '#6a5f42', sideD: '#4a4230', ink: '#2e2818', pit: '#2c2618' },
       music: { bpm: 96, root: 57, minor: true, intensity: 0.5, leadWave: 'sine', stabWave: 'sine' },
-      weights: { flat: 28, gap: 16, flyer: 26, ledges: 12, spikes: 10, enemy: 8 },
+      weights: { flat: 20, gap: 14, flyer: 20, diver: 12, ledges: 10, spikes: 10, enemy: 8, highTrack: 8 },
       opener: [['flyer', 620]],
-      closing: [['flyer', 560], ['gapArc', 260]] },
+      closing: [['flyer', 560], ['gapArc', 260]],
+      narr: ['Read the flyers in the mist before you commit.', 'Divers drop out of the fog — keep rolling.'] },
     { id: 'ember-canyon', num: 7, name: 'Ember Canyon', bg: 'canyon.webp',
       cue: 'Lava below, spikes ahead. Chain the gap and the spike crossing with room to recover between.',
-      sec: [90, 120], water: '#ff7a2a', overlay: 'warm',
+      sec: [60, 80], water: '#ff7a2a', overlay: 'warm',
       palette: { top: '#c07a4a', trim: '#e0a06a', side: '#96522e', sideD: '#653619', ink: '#38200e', pit: '#a03010' },
       music: { bpm: 126, root: 55, minor: true, intensity: 0.7, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 22, gap: 20, spikes: 24, enemy: 14, crumble: 10, flyer: 10 },
+      weights: { flat: 18, gap: 18, spikes: 24, gapSpikes: 10, enemy: 14, hopper: 8, crumble: 10, flyer: 8, lift: 6 },
       opener: [['gapSpikes']],
-      closing: [['gapSpikes'], ['gapArc', 260]] },
+      closing: [['gapSpikes'], ['gapArc', 260]],
+      narr: ['Lava below: chain the gaps and spike crossings.', 'No safe ground in the middle — commit to the jump.'] },
     { id: 'glass-coast', num: 8, name: 'Glass Coast', bg: 'glass-coast.webp',
       cue: 'Board the moving lift and time your exit onto the coastal ledge. The sea is not soft.',
-      sec: [90, 120], water: '#3f8fb8', overlay: null,
+      sec: [60, 80], water: '#3f8fb8', overlay: null,
       palette: { top: '#e8d8a0', trim: '#f8ecc0', side: '#c0a878', sideD: '#8a744e', ink: '#4a3c22', pit: '#2e6a90' },
       music: { bpm: 122, root: 60, minor: false, intensity: 0.65, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 26, gap: 14, lift: 30, ledges: 14, enemy: 8, pickup: 8 },
+      weights: { flat: 20, gap: 12, lift: 34, ledges: 14, highTrack: 8, enemy: 8, diver: 8, pickup: 8 },
       opener: [['liftX']],
-      closing: [['liftX'], ['gapArc', 240]] },
+      closing: [['liftX'], ['gapArc', 240]],
+      narr: ['Ride the moving lift across the sea.', 'Hop off as it nears the far ledge.'] },
     { id: 'lantern-caverns', num: 9, name: 'Lantern Caverns', bg: 'lantern-caverns.webp',
       cue: 'Carry the lantern light: lift to the crumbling ledge, and leave it before it falls.',
-      sec: [90, 120], water: null, overlay: 'dark',
+      sec: [60, 80], water: null, overlay: 'dark',
       palette: { top: '#6a6a8a', trim: '#9494b2', side: '#4a4a64', sideD: '#32324a', ink: '#1e1e30', pit: '#14141f' },
       music: { bpm: 92, root: 52, minor: true, intensity: 0.55, leadWave: 'triangle', stabWave: 'triangle' },
-      weights: { flat: 24, gap: 14, lift: 20, crumble: 22, spikes: 10, flyer: 10 },
+      weights: { flat: 18, gap: 12, lift: 22, crumble: 22, spikes: 10, flyer: 10, diver: 8, hopper: 8 },
       opener: [['liftY'], ['crumble', 1]],
-      closing: [['liftY'], ['crumble', 2], ['gapArc', 240]] },
+      closing: [['liftY'], ['crumble', 2], ['gapArc', 240]],
+      narr: ['Lift up to the crumbling ledge — then leave before it falls.', 'The dark hides spikes; follow the lanterns.'] },
     { id: 'frostline', num: 10, name: 'Frostline', bg: 'frostline.webp',
       cue: 'The ice will not stop for you. Anticipate the long stopping distance and line up successive jumps.',
-      sec: [120, 150], water: null, overlay: 'cold',
+      sec: [80, 100], water: null, overlay: 'cold',
       palette: { top: '#bfe6f5', trim: '#e8f6fd', side: '#8fb8cc', sideD: '#5f8298', ink: '#2e4a5c', pit: '#24384a' },
       music: { bpm: 110, root: 62, minor: false, intensity: 0.6, leadWave: 'sine', stabWave: 'triangle' },
-      weights: { flat: 22, ice: 26, gap: 20, spikes: 12, enemy: 10, flyer: 10 },
+      weights: { flat: 18, ice: 26, gap: 18, spikes: 12, enemy: 10, flyer: 10, highTrack: 10 },
       opener: [['ice'], ['gapArc', 240], ['gapArc', 260]],
-      closing: [['ice'], ['gapArc', 280], ['gapArc', 280]] },
+      closing: [['ice'], ['gapArc', 280], ['gapArc', 280]],
+      narr: ['Ice barely brakes — plan every jump early.', 'Higher tracks hide the golden eggs.'] },
     { id: 'moonridge', num: 11, name: 'Moonridge', bg: 'ridge.webp',
       cue: 'Under the moon, read the patrol and choose where to land from the moving platform.',
-      sec: [120, 150], water: null, overlay: 'night',
+      sec: [80, 100], water: null, overlay: 'night',
       palette: { top: '#7a7a9a', trim: '#a8a8c4', side: '#565670', sideD: '#3a3a52', ink: '#22223a', pit: '#181828' },
       music: { bpm: 114, root: 57, minor: true, intensity: 0.7, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 20, gap: 16, lift: 20, enemy: 20, flyer: 14, spikes: 10 },
+      weights: { flat: 16, gap: 14, lift: 22, enemy: 20, hopper: 10, flyer: 12, diver: 8, spikes: 10, highTrack: 8 },
       opener: [['enemy', 520], ['liftX']],
-      closing: [['liftX'], ['enemy', 560], ['gapArc', 260]] },
+      closing: [['liftX'], ['enemy', 560], ['gapArc', 260]],
+      narr: ['Under the moon everything moves. Read, then leap.', 'Watch for divers and their shadows.'] },
     { id: 'dawnbridge', num: 12, name: 'Dawnbridge', bg: 'dawnbridge.webp',
       cue: 'The bridge is broken into spans. From each safe approach, name the next two landings.',
-      sec: [120, 150], water: '#4a6a8a', overlay: null,
+      sec: [80, 100], water: '#4a6a8a', overlay: null,
       palette: { top: '#d8cfa8', trim: '#f0e8c8', side: '#b0a480', sideD: '#7a7050', ink: '#443c28', pit: '#33506a' },
       music: { bpm: 120, root: 60, minor: false, intensity: 0.75, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 20, broken: 34, gap: 16, enemy: 14, lift: 8, spikes: 8 },
+      weights: { flat: 16, broken: 34, gap: 14, enemy: 14, hopper: 8, lift: 8, spikes: 8, diver: 8 },
       opener: [['broken', 4]],
-      closing: [['broken', 5], ['gapArc', 260]] },
+      closing: [['broken', 5], ['gapArc', 260]],
+      narr: ['The bridge is broken — hop span to span.', 'Each span crumbles soon after you land. Do not wait.'] },
     { id: 'beacon-summit', num: 13, name: 'Beacon Summit', bg: 'beacon-summit.webp',
       cue: 'The last climb. Springs, lifts and timed jumps — light the beacon and the flock can find its way home.',
-      sec: [120, 150], water: null, overlay: 'dawn',
+      sec: [90, 110], water: null, overlay: 'dawn',
       palette: { top: '#eef4f8', trim: '#ffffff', side: '#b8c8d8', sideD: '#8298ac', ink: '#3c5064', pit: '#2c3e4e' },
       music: { bpm: 128, root: 60, minor: false, intensity: 0.9, leadWave: 'square', stabWave: 'sawtooth' },
-      weights: { flat: 16, gap: 16, spring: 18, lift: 20, crumble: 12, enemy: 10, spikes: 8 },
+      weights: { flat: 14, gap: 14, spring: 18, lift: 22, crumble: 12, enemy: 10, hopper: 8, spikes: 8, diver: 8 },
       opener: [['spring', true], ['liftX']],
-      closing: [['spring', false], ['liftX'], ['gapArc', 280], ['beacon']] }
+      closing: [['spring', false], ['liftX'], ['gapArc', 280], ['beacon']],
+      narr: ['The last climb: springs, lifts, swoopers.', 'Light the beacon and the flock finds its way home.'] }
   ];
 
   // ── the generator ────────────────────────────────────────────────────
@@ -176,6 +196,18 @@
       flyer: function (cx, w, y) {
         objects.push({ type: 'enemy', kind: 'fly', cx: cx, cy: y || T.FLYER_Y, rx: w / 2 || T.FLYER_RX,
           ry: T.FLYER_RY, speed: T.FLYER_SPEED * (1 + d * 0.5), phase: rng.next() * 6.283, alive: true });
+      },
+      hopper: function (x0, x1, y) {
+        var by = y || 0;
+        objects.push({ type: 'enemy', kind: 'hop', x0: x0, x1: x1, y: by, baseY: by,
+          speed: T.ENEMY_SPEED * (1 + d * 0.6), x: (x0 + x1) / 2, dir: rng.next() < 0.5 ? -1 : 1,
+          vy: 0, hx: 1, hopT: rng.between(300, 1500), alive: true });
+      },
+      diver: function (x0, x1, cy) {
+        var h = cy || T.DIVER_CY;
+        objects.push({ type: 'enemy', kind: 'dive', x0: x0, x1: x1, cy: h, y: h,
+          speed: T.DIVER_SPEED * (1 + d * 0.5), x: (x0 + x1) / 2, dir: rng.next() < 0.5 ? -1 : 1,
+          state: 'watch', tx: 0, ty: 0, alive: true });
       },
       spring: function (x, y) { objects.push({ type: 'spring', x: x, y: y || 0 }); },
       pickup: function (kind, x, y) { objects.push({ type: 'pickup', kind: kind, x: x, y: y || 52, taken: false }); },
@@ -296,6 +328,36 @@
         if (rng.next() < 0.5) api.eggsRow(api.x + 80, 3);
         api.x += ww;
       },
+      hopper: function (w) {                       // a leaping ground enemy
+        var ww = w || rng.between(480, 700);
+        api.ground(api.x, api.x + ww);
+        api.hopper(api.x + 120, api.x + ww - 120);
+        if (rng.next() < 0.4) api.eggsRow(api.x + 60, 3);
+        api.x += ww;
+      },
+      diver: function (w) {                        // a flyer that swoops at Mama
+        var ww = w || rng.between(560, 820);
+        api.ground(api.x, api.x + ww);
+        api.diver(api.x + 140, api.x + ww - 140, rng.between(220, 300));
+        if (rng.next() < 0.5) api.eggsRow(api.x + 80, 3);
+        api.x += ww;
+      },
+      highTrack: function (n) {                    // an elevated route, then a drop down
+        // geometry stays gentle (drops or small rises, wide ledges, short
+        // gaps) so a jump from anywhere on a ledge always reaches the next
+        var count = n || rng.int(3, 5);
+        api.ground(api.x, api.x + 320);            // approach
+        api.x += 320;
+        var y = rng.between(120, 160);
+        for (var i = 0; i < count; i++) {
+          var w = rng.between(190, 250);
+          api.ground(api.x, api.x + w, y, 'ledge');
+          api.eggsRow(api.x + 50, 2, y + 56);
+          api.x += w + rng.between(140, 200);
+          y = Math.max(110, Math.min(240, y + rng.between(-90, 40)));
+        }
+        var land = 340; api.ground(api.x, api.x + land); api.x += land;
+      },
       broken: function (n) {
         // spans pitched about one jump apart, so each hop lands on the next
         var count = n || rng.int(3, 4 + Math.round(d * 2));
@@ -333,7 +395,7 @@
     };
 
     // Hard pieces get a checkpoint flag on safe ground before them.
-    var HARD = { enemy: 1, liftX: 1, liftY: 1, broken: 1, crumble: 1, gapSpikes: 1, flyer: 1, spikes: 1, spring: 1 };
+    var HARD = { enemy: 1, lift: 1, liftX: 1, liftY: 1, broken: 1, crumble: 1, gapSpikes: 1, flyer: 1, diver: 1, hopper: 1, highTrack: 1, spikes: 1, spring: 1 };
 
     function runSeq(seq) {
       for (var i = 0; i < seq.length; i++) {

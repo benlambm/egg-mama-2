@@ -220,8 +220,9 @@
                 S.y < ob.y + T.SPIKE_HIT_H && S.y > ob.y - 60) { hit('spikes'); break; }
           } else if (ob.type === 'enemy' && ob.alive) {
             var ep = enemyPos(ob, S.t);
-            var hw = ob.kind === 'fly' ? T.FLYER_HALF_W : T.ENEMY_HALF_W;
-            var eh = ob.kind === 'fly' ? T.FLYER_H : T.ENEMY_H;
+            var airborne = ob.kind === 'fly' || ob.kind === 'dive';
+            var hw = airborne ? T.FLYER_HALF_W : T.ENEMY_HALF_W;
+            var eh = airborne ? T.FLYER_H : T.ENEMY_H;
             var overlap = Math.abs(S.x - ep.x) < hw + T.MAMA_R * 0.8 &&
                           S.y < ep.y + eh && S.y + T.MAMA_H > ep.y + 6;
             if (overlap) {
@@ -234,13 +235,51 @@
           }
         }
       }
-      // crawlers patrol
+      // crawlers patrol; hoppers leap at Mama when she is close; divers swoop
       for (i = 0; i < level.objects.length; i++) {
         var e = level.objects[i];
-        if (e.type === 'enemy' && e.kind === 'crawl' && e.alive) {
+        if (e.type !== 'enemy' || !e.alive) continue;
+        if (e.kind === 'crawl') {
           e.x += e.dir * e.speed * dt / 1000;
           if (e.x < e.x0 + T.ENEMY_HALF_W) { e.x = e.x0 + T.ENEMY_HALF_W; e.dir = 1; }
           if (e.x > e.x1 - T.ENEMY_HALF_W) { e.x = e.x1 - T.ENEMY_HALF_W; e.dir = -1; }
+        } else if (e.kind === 'hop') {
+          e.hopT -= dt;
+          if (e.y <= e.baseY && e.hopT <= 0 && Math.abs(S.x - e.x) < T.HOPPER_TRIGGER) {
+            e.vy = T.HOPPER_HOP_VY; e.hx = S.x >= e.x ? 1 : -1;
+            e.hopT = 1100 + ((e.x0 % 700) + 700) % 700;
+          }
+          if (e.y > e.baseY || e.vy > 0) {
+            e.vy -= T.GRAVITY * dt / 1000;
+            e.y += e.vy * dt / 1000;
+            e.x += (e.hx || e.dir) * T.HOPPER_VX * dt / 1000;
+          } else {
+            e.y = e.baseY; e.vy = 0;
+            e.x += e.dir * e.speed * 0.4 * dt / 1000;
+          }
+          if (e.x < e.x0 + T.ENEMY_HALF_W) { e.x = e.x0 + T.ENEMY_HALF_W; e.dir = 1; }
+          if (e.x > e.x1 - T.ENEMY_HALF_W) { e.x = e.x1 - T.ENEMY_HALF_W; e.dir = -1; }
+        } else if (e.kind === 'dive') {
+          if (e.state === 'watch') {
+            e.x += e.dir * e.speed * dt / 1000;
+            if (e.x < e.x0) { e.x = e.x0; e.dir = 1; }
+            if (e.x > e.x1) { e.x = e.x1; e.dir = -1; }
+            e.y = e.cy + Math.sin(S.t * 0.002 + e.x0) * 24;
+            if (Math.abs(S.x - e.x) < T.DIVER_TRIGGER && S.y < 140) {
+              e.state = 'dive'; e.tx = S.x; e.ty = T.DIVER_MIN_Y;
+            }
+          } else if (e.state === 'dive') {
+            var dx = e.tx - e.x, dy = e.ty - e.y, dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            e.x += dx / dist * T.DIVER_DIVE_V * dt / 1000;
+            e.y += dy / dist * T.DIVER_DIVE_V * dt / 1000;
+            if (dist < 46) e.state = 'rise';
+          } else {   // rise back to cruise height
+            e.y -= T.DIVER_RISE_V * dt / 1000;
+            e.x += e.dir * e.speed * 0.5 * dt / 1000;
+            if (e.x < e.x0) { e.x = e.x0; e.dir = 1; }
+            else if (e.x > e.x1) { e.x = e.x1; e.dir = -1; }
+            if (e.y <= e.cy) { e.y = e.cy; e.state = 'watch'; }
+          }
         }
       }
 

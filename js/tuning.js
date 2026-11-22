@@ -67,11 +67,22 @@
     FLYER_RX: 190,           // its path's half-width
     FLYER_RY: 70,            // its path's half-height
     FLYER_Y: 190,            // path centre above the ground
+    // hopper: a ground enemy that leaps at Mama when she comes close
+    HOPPER_TRIGGER: 340,     // she is this close and it springs
+    HOPPER_HOP_VY: 980,      // launch speed (a bit over half a jump)
+    HOPPER_VX: 320,          // horizontal speed mid-hop, toward Mama
+    // diver: a flyer that cruises high and swoops down when Mama is below it
+    DIVER_CY: 250,           // cruise height
+    DIVER_SPEED: 130,        // horizontal patrol, u/s
+    DIVER_TRIGGER: 400,      // swoop when Mama is this close horizontally
+    DIVER_DIVE_V: 620,       // swoop speed, u/s
+    DIVER_MIN_Y: 46,         // swoop target height (right at Mama's face)
+    DIVER_RISE_V: 260,       // climb back up after a swoop
 
     // ── CHAPTERS ────────────────────────────────────────────────────────
     START_X: 140,            // where Mama begins (a checkpoint stands here)
     INTRO_FLAT: 720,         // safe opening ground in every chapter
-    CHECKPOINT_EVERY_MS: [16000, 26000],  // quiet stretch between flags
+    CHECKPOINT_EVERY_MS: [12000, 20000],  // quiet stretch between flags
     EGG_SPACING: 92,
 
     // ── THE VIEW (landscape; same world on every screen size) ───────────

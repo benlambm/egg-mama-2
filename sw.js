@@ -12,7 +12,7 @@
 // Every copy this game keeps has a name starting with PREFIX. Other games on
 // the same web address keep copies of their own under other names.
 const PREFIX = 'egg-mama-2-';
-const VERSION = PREFIX + 'valley-2';
+const VERSION = PREFIX + 'valley-3';
 const FILES = [
   './',
   './index.html',

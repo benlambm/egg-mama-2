@@ -291,10 +291,17 @@
           var ep = game.enemyPos(o);
           var shadowY = groundAt(game, ep.x, ep.y);
           var shd = V.project(L, camX, ep.x, shadowY);
-          drawShadow(shd.x, shd.y, (o.kind === 'fly' ? 40 : 46) * sp, 10 * sp, ep.y - shadowY);
+          drawShadow(shd.x, shd.y, (o.kind === 'fly' || o.kind === 'dive' ? 40 : 46) * sp, 10 * sp, ep.y - shadowY);
           var eo = V.project(L, camX, ep.x, ep.y);
-          if (o.kind === 'fly') {
-            c.save(); c.translate(eo.x, eo.y - T.FLYER_H * sp / 2); A.drawFlyer(c, { t: now }); c.restore();
+          if (o.kind === 'fly' || o.kind === 'dive') {
+            c.save(); c.translate(eo.x, eo.y); c.scale(sp, sp);
+            if (o.kind === 'fly') A.drawFlyer(c, { t: now });
+            else A.drawDiver(c, { t: now, diving: o.state === 'dive' });
+            c.restore();
+          } else if (o.kind === 'hop') {
+            c.save(); c.translate(eo.x, eo.y); c.scale(sp, sp); if (o.dir < 0) c.scale(-1, 1);
+            A.drawHopper(c, { t: now, air: ep.y - (o.baseY || 0) });
+            c.restore();
           } else {
             c.save(); c.translate(eo.x, eo.y); if (o.dir < 0) c.scale(-1, 1);
             var legBob = opts.reduced ? 0 : Math.sin(now * 0.02 + o.x) * 2;
@@ -390,21 +397,23 @@
         c.globalAlpha = 1;
       }
 
-      // chapter caption (drawn in the world layer: it never moves the playfield)
+      // chapter caption / narration (drawn in the world layer: it never moves the playfield)
       if (opts.caption && opts.caption.alpha > 0) {
         var cap = opts.caption;
         c.globalAlpha = clamp(cap.alpha, 0, 1);
         var cy2 = L.h * 0.24;
-        c.font = '900 ' + Math.round(L.h * 0.075) + 'px ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif';
         c.textAlign = 'center'; c.textBaseline = 'middle';
-        c.lineWidth = Math.round(L.h * 0.014); c.strokeStyle = 'rgba(43,26,16,0.92)'; c.lineJoin = 'round';
-        c.strokeText(cap.title, L.w / 2, cy2);
-        c.fillStyle = '#fff6e0'; c.fillText(cap.title, L.w / 2, cy2);
+        if (cap.title) {
+          c.font = '900 ' + Math.round(L.h * 0.075) + 'px ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif';
+          c.lineWidth = Math.round(L.h * 0.014); c.strokeStyle = 'rgba(43,26,16,0.92)'; c.lineJoin = 'round';
+          c.strokeText(cap.title, L.w / 2, cy2);
+          c.fillStyle = '#fff6e0'; c.fillText(cap.title, L.w / 2, cy2);
+        }
         if (cap.sub) {
           c.font = '700 ' + Math.round(L.h * 0.032) + 'px ui-rounded, system-ui, sans-serif';
-          c.lineWidth = Math.round(L.h * 0.008);
-          c.strokeText(cap.sub, L.w / 2, cy2 + L.h * 0.075);
-          c.fillStyle = '#ffe9a8'; c.fillText(cap.sub, L.w / 2, cy2 + L.h * 0.075);
+          c.lineWidth = Math.round(L.h * 0.008); c.strokeStyle = 'rgba(43,26,16,0.92)'; c.lineJoin = 'round';
+          c.strokeText(cap.sub, L.w / 2, cap.title ? cy2 + L.h * 0.075 : cy2);
+          c.fillStyle = '#ffe9a8'; c.fillText(cap.sub, L.w / 2, cap.title ? cy2 + L.h * 0.075 : cy2);
         }
         c.globalAlpha = 1;
       }

@@ -45,6 +45,13 @@ tap to resume once landscape is restored.
   ends the run. Falling into a pit respawns you at the last checkpoint.
 - **Checkpoints** (flags) autosave; Continue on the title screen resumes there.
   After the summit you can keep rolling an endless circuit of the final chapter.
+- **Narration:** each chapter opens with its cue, then a short queue of in-canvas
+  narration lines (`narr` in `js/levels.js`) — Meadow's explain what the game is
+  about (gather the scattered clutch, golden eggs hatch duckling extra lives,
+  swipe controls).
+- **Trail Journal level select (testing):** open the game with `?all` in the URL
+  (or call `EM.debug.unlockAll()` in devtools) and every chapter in the journal
+  becomes tap-to-play. Stored as the `allUnlocked` setting.
 - Progress, settings, and the trail journal persist in `localStorage`
   (`egg-mama-2.save.v2` / `egg-mama-2.settings.v1`) and sync live across two
   open tabs. Best-effort migration from the original game's save keys is
@@ -117,7 +124,12 @@ immediately, so returning players get the new build even offline.
 - **Seeded levels.** Each chapter is generated from `(chapterIndex, circuit,
   seed)`; a chapter replayed with the same seed is identical, which is what the
   tests rely on. Checkpoints are guaranteed before hard pieces and roughly every
-  16–26 s, and at least two golden eggs are always placed.
+  12–20 s, and at least two golden eggs are always placed.
+- **Enemies.** Four kinds: crawlers patrol on the ground, flyers circle on a fixed
+  ellipse, hoppers leap at Mama when she comes close, and divers cruise high and
+  swoop down when she is below them. All are stompable. Piece weights per chapter
+  in `js/levels.js` decide how dense each kind is; `highTrack` pieces add raised
+  ledge routes with eggs, lifts (`liftX`/`liftY`) cross the wide pits.
 - **Audio is synthesized** at runtime with Web Audio (no audio files): SFX are
   short enveloped osc/noise bursts, and each chapter's music is an 8-bar loop
   built from a shared Meadow motif transposed per chapter, with per-chapter tempo,
