@@ -26,10 +26,11 @@
     };
   }
 
-  // World (x along the route, y up) to screen pixels, given the camera's
-  // world x. Returns the scale too.
+  // World (x along the route, y up) to screen pixels. camX is the world x at
+  // the LEFT edge of the screen; the renderer keeps Mama at L.mamaX by
+  // setting camX = S.x - L.mamaX / sp. Returns the scale too.
   function project(L, camX, x, y) {
-    return { x: (x - camX) * L.sp + L.mamaX, y: L.groundY - y * L.sp, s: L.sp };
+    return { x: (x - camX) * L.sp, y: L.groundY - y * L.sp, s: L.sp };
   }
 
   var api = { layout: layout, project: project };

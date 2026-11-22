@@ -73,22 +73,21 @@
     }
 
     // ── platforms ──────────────────────────────────────────────────────
-    function drawPlatform(p, sp) {
-      var span = { x0: p.x0, x1: p.x1, y: p.y };
+    // The caller has translated to the platform's top-left in screen px and
+    // scaled by sp, so everything here is in WORLD units and line widths are
+    // world-unit strokes (the scale turns them into pixels).
+    function drawPlatform(p) {
       var shakeX = 0;
-      if (p.type === 'lift') { /* span filled by caller */ }
-      if (p.type === 'crumble' && p.standT > T.CRUMBLE_WARN_MS && p.alive) shakeX = reducedMotion() ? 0 : Math.sin(p.standT * 0.09) * 3;
-      var sx0 = span.x0, sx1 = span.x1, sy = span.y;
+      if (p.type === 'crumble' && p.standT > T.CRUMBLE_WARN_MS && p.alive) shakeX = reducedMotion() ? 0 : Math.sin(p.standT * 0.09) * 5;
       var pal = fx._pal;
-      var x0 = sx0, x1 = sx1, y = sy;
+      var x0 = 0, x1 = p.w, y = 0;
       var depth = (p.type === 'ground' || p.type === 'ice') ? 900 : 64;
       var c0 = c;
       var g = c0.createLinearGradient(x0, 0, x1, 0);
       g.addColorStop(0, pal.side); g.addColorStop(0.25, pal.side); g.addColorStop(0.85, pal.sideD); g.addColorStop(1, pal.sideD);
-      var gv = c0.createLinearGradient(0, y, 0, y + depth);
       // body
       c0.save();
-      if (shakeX) c0.translate(shakeX * sp, 0);
+      if (shakeX) c0.translate(shakeX, 0);
       c0.beginPath();
       var r = Math.min(14, (x1 - x0) / 2);
       c0.moveTo(x0, y + depth);
@@ -99,7 +98,7 @@
       c0.lineTo(x1, y + depth);
       c0.closePath();
       c0.fillStyle = g; c0.fill();
-      c0.strokeStyle = pal.ink; c0.lineWidth = Math.max(1.2, 3 * sp / 1.6); c0.lineJoin = 'round'; c0.stroke();
+      c0.strokeStyle = pal.ink; c0.lineWidth = Math.max(1.2, 3); c0.lineJoin = 'round'; c0.stroke();
       // lit top strip
       var th = (p.type === 'ground' || p.type === 'ice') ? 18 : 14;
       c0.save();
@@ -111,11 +110,11 @@
       var gt = c0.createLinearGradient(x0, y, x1, y);
       gt.addColorStop(0, pal.trim); gt.addColorStop(0.5, pal.top); gt.addColorStop(1, pal.top);
       c0.fillStyle = gt; c0.fill();
-      c0.strokeStyle = pal.ink; c0.lineWidth = Math.max(1, 2.4 * sp / 1.6); c0.stroke();
+      c0.strokeStyle = pal.ink; c0.lineWidth = Math.max(1, 2.4); c0.stroke();
       c0.restore();
       // type details
       if (p.type === 'ice') {
-        c0.strokeStyle = 'rgba(255,255,255,0.75)'; c0.lineWidth = Math.max(1, 2 * sp / 1.6); c0.lineCap = 'round';
+        c0.strokeStyle = 'rgba(255,255,255,0.75)'; c0.lineWidth = Math.max(1, 2); c0.lineCap = 'round';
         for (var i = 0; i < 3; i++) {
           var yy = y + 7 + i * 5;
           c0.beginPath();
@@ -124,7 +123,7 @@
           c0.stroke();
         }
       } else if (p.type === 'crumble' && p.alive) {
-        c0.strokeStyle = 'rgba(40,24,12,0.55)'; c0.lineWidth = Math.max(1, 2 * sp / 1.6); c0.lineCap = 'round';
+        c0.strokeStyle = 'rgba(40,24,12,0.55)'; c0.lineWidth = Math.max(1, 2); c0.lineCap = 'round';
         var n = Math.max(2, Math.floor((x1 - x0) / 60));
         for (i = 0; i < n; i++) {
           var cx = x0 + (i + 0.5) * (x1 - x0) / n + (hash(p.x0, i) - 0.5) * 14;
@@ -132,7 +131,7 @@
         }
       } else if (p.type === 'lift') {
         // ropes for a vertical lift, rails for a horizontal one
-        c0.strokeStyle = 'rgba(50,32,16,0.7)'; c0.lineWidth = Math.max(1.5, 4 * sp / 1.6);
+        c0.strokeStyle = 'rgba(50,32,16,0.7)'; c0.lineWidth = Math.max(1.5, 4);
         if (p.axis === 'y') {
           c0.beginPath(); c0.moveTo(x0 + 12, y + 40); c0.lineTo(x0 + 12, y - 320); c0.moveTo(x1 - 12, y + 40); c0.lineTo(x1 - 12, y - 320); c0.stroke();
         } else {
@@ -140,6 +139,31 @@
         }
       }
       c0.restore();
+    }
+
+    // Adjacent ground/ice slabs at the same height merge into one land mass,
+    // so piece seams do not draw as fake cracks — only real pits get edges.
+    // (Generated left to right; lifts/crumble/ledges pass through untouched.)
+    function drawList(level) {
+      if (level._drawList) return level._drawList;
+      var out = [], i, p, last;
+      var seam = T.MAMA_R * 1.4 + 8;      // wider than this and Mama can fall in
+      for (i = 0; i < level.platforms.length; i++) {
+        p = level.platforms[i];
+        last = out[out.length - 1];
+        if (last && (last.type === 'ground' || last.type === 'ice') &&
+            (p.type === 'ground' || p.type === 'ice') &&
+            Math.abs(p.y - last.y) < 1 && p.x0 >= last.x0 && p.x0 - last.x1 <= seam) {
+          last.x1 = Math.max(last.x1, p.x1);
+          if (p.type === 'ice') last.type = 'ice';
+        } else if (p.type === 'ground' || p.type === 'ice') {
+          out.push({ type: p.type, x0: p.x0, x1: p.x1, y: p.y, alive: true, standT: 0 });
+        } else {
+          out.push(p);
+        }
+      }
+      level._drawList = out;
+      return out;
     }
 
     // ── the frame ──────────────────────────────────────────────────────
@@ -176,8 +200,10 @@
       fx._pal = pal;
       var x0w = camX - 260, x1w = camX + L.w / sp + 260;
 
-      // pits: water or darkness between ground-level platforms
-      var plats = level.platforms;
+      // pits: water or darkness between land masses. Any gap wider than the
+      // edge-grab margin is one Mama can fall into, so it must read as a pit.
+      var plats = drawList(level);
+      var seam = T.MAMA_R * 1.4 + 8;
       for (var i = 0; i < plats.length; i++) {
         var p = plats[i];
         if (p.type !== 'ground' && p.type !== 'ice' && p.type !== 'crumble') continue;
@@ -189,7 +215,7 @@
           if ((q.type === 'ground' || q.type === 'ice') && q.x0 > p.x1 + 1 && q.x0 < nx) nx = q.x0;
         }
         if (nx === Infinity) continue;
-        if (nx - p.x1 < 90) continue;   // tiny seam, not a pit
+        if (nx - p.x1 < seam) continue;   // narrower than Mama's edge grab: solid-looking seam, not a pit
         var a = V.project(L, camX, p.x1, 0), b = V.project(L, camX, nx, 0);
         if (ch.water) {
           var wy = V.project(L, camX, 0, -58).y;
@@ -214,11 +240,11 @@
         if (!p.alive) continue;
         var span = game.span(p);
         if (span.x1 < x0w || span.x0 > x1w) continue;
-        var pa = V.project(L, camX, span.x0, span.y), pb = V.project(L, camX, span.x1, span.y);
+        var pa = V.project(L, camX, span.x0, span.y);
         c.save();
         c.translate(pa.x, pa.y);
-        var sc = pb.x - pa.x;
-        drawPlatform({ type: p.type, x0: 0, x1: sc / sp, y: 0, standT: p.standT || 0, axis: p.axis, w: p.w }, sp);
+        c.scale(sp, sp);   // draw in world units so the mass ends exactly at span.x1
+        drawPlatform({ type: p.type, x0: span.x0, x1: span.x1, w: span.x1 - span.x0, y: 0, standT: p.standT || 0, axis: p.axis });
         c.restore();
       }
 
@@ -308,11 +334,10 @@
         A.drawDuckling(c, { t: now, hop: i * 0.63 });
         c.restore();
       }
-      // Mama herself (drawn fresh: she rolls)
-      var roll = S.onGround ? (S.x / 40) % TAU : clamp(S.vy / 4000, -0.25, 0.45);
+      // Mama herself (drawn fresh every frame; she stays upright — no rolling)
       var squash = clamp(1 - (now - lastLand) / 160, 0, 1);
       c.save(); c.translate(sm.x, sm.y); c.scale(sp, sp);
-      A.drawMama(c, { t: now, roll: roll, vy: S.vy, invuln: S.invuln, squash: S.onGround ? squash * 0.6 : 0, mood: S.invuln > 0 ? 'worried' : 'happy' });
+      A.drawMama(c, { t: now, vy: S.vy, invuln: S.invuln, squash: S.onGround ? squash * 0.6 : 0, mood: S.invuln > 0 ? 'worried' : 'happy' });
       c.restore();
       // shield bubble
       if (S.shield > 0) {

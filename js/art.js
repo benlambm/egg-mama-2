@@ -234,11 +234,10 @@
 
   // ── things drawn fresh every frame ───────────────────────────────────
   // Mama: a big warm-white egg with a face, a hair tuft and a rosy cheek.
-  // o: {t, roll (radians), air (0..1 how airborne), vy, invuln, mood, squash}
+  // She stays upright — no rolling. o: {t, vy, invuln, mood, squash}
   function drawMama(c, o) {
     var RX = 40, RY = 47, CY = -46;
     c.save();
-    c.rotate(o.roll || 0);
     if (o.squash) c.scale(1 + o.squash * 0.18, 1 - o.squash * 0.16);
     var blink = o.invuln > 0 ? (Math.sin(o.t * 0.03) > 0) : (Math.sin(o.t * 0.0016) > 0.985);
     var path = function () { eggPath(c, 0, CY, RX, RY); };
@@ -255,7 +254,7 @@
     c.quadraticCurveTo(12, CY - RY - 14, 10, CY - RY + 2);
     c.closePath();
     paint(c, gradAt(c, -8, CY - RY - 18, 10, CY - RY + 2, [0, '#ff9ec2', 0.5, '#f06a9a', 1, '#c23a72']), '#a82e68', 2.5);
-    // face (looking right, the way she rolls)
+    // face (looking ahead, the way she travels)
     var ex = 8, ey = CY - 14;
     if (blink) {
       line(c, [ex - 7, ey, ex + 1, ey], INK, 3);
